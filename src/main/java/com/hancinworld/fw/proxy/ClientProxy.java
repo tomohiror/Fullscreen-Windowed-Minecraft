@@ -232,9 +232,13 @@ public class ClientProxy extends CommonProxy {
                 client.gameSettings.saveOptions();
             }
             Display.setFullscreen(false);
-            Display.setResizable(!goFullScreen);
+
             Display.setDisplayMode(new DisplayMode((int) newBounds.getWidth(), (int) newBounds.getHeight()));
             Display.setLocation(newBounds.x, newBounds.y);
+            if (!goFullScreen) {
+                Display.setResizable(false);
+            }
+            Display.setResizable(!goFullScreen);
 
             client.resize((int) newBounds.getWidth(), (int) newBounds.getHeight());
             Display.setVSyncEnabled(client.gameSettings.enableVsync);
