@@ -27,6 +27,10 @@ import com.hancinworld.fw.handler.DrawScreenEventHandler;
 import com.hancinworld.fw.handler.KeyInputEventHandler;
 import com.hancinworld.fw.reference.Reference;
 import com.hancinworld.fw.utility.LogHelper;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.SplashProgress;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -39,6 +43,7 @@ import org.lwjgl.opengl.DisplayMode;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 
 public class ClientProxy extends CommonProxy {
 
@@ -199,10 +204,22 @@ public class ClientProxy extends CommonProxy {
 
         //This is the new bounds we have to apply.
         Rectangle newBounds = goFullScreen ? screenBounds : _savedWindowedBounds;
-        if(newBounds == null)
-            newBounds = screenBounds;
+        if(newBounds == null) {
+            OptionParser optionparser = new OptionParser();
+            optionparser.allowsUnrecognizedOptions();
+            OptionSpec<Integer> width =
+                    optionparser.accepts("width").withRequiredArg().ofType(Integer.class).defaultsTo(854);
+            OptionSpec<Integer> height =
+                    optionparser.accepts("height").withRequiredArg().ofType(Integer.class).defaultsTo(480);
 
-        if(goFullScreen == false && ClientProxy.fullscreen == false) {
+            @SuppressWarnings("unchecked")
+            OptionSet optionset = optionparser.parse(((ArrayList<String>) Launch.blackboard.get("ArgumentList"))
+                    .toArray(new String[0]));
+
+            newBounds = new Rectangle(-1, -1, optionset.valueOf(width), optionset.valueOf(height));
+        }
+
+        if(!goFullScreen && !ClientProxy.fullscreen) {
             newBounds = currentCoordinates;
             _savedWindowedBounds = currentCoordinates;
         }
